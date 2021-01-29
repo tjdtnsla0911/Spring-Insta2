@@ -10,4 +10,5 @@ import com.example.demo.model.User;
 public interface UserRepository {
 
 	public List<User> userList();
+	public User findByUsername(String username);
 }

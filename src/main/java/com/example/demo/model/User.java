@@ -3,6 +3,9 @@ package com.example.demo.model;
 
 import java.security.Timestamp;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,4 +33,12 @@ public class User {
 	private String username;
 	private String website;
 
+	public List<String> getRoleList(){
+    	System.out.println("model.User의 getRoleList()에 왔습니다");
+        if(this.role.length() > 0){
+        	System.out.println("model.User의 getRoleList()의 if문에 왔습니다");
+            return Arrays.asList(this.role.split(","));
+        }
+        return new ArrayList<>();
+    }
 }
