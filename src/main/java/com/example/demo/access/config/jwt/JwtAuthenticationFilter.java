@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.example.demo.access.config.auth.PrincipalDetails;
@@ -22,8 +21,9 @@ import com.example.demo.controller.dto.LoginRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
+public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private final AuthenticationManager authenticationManager;
 
 	// Authentication 객체 만들어서 리턴 => 의존 : AuthenticationManager
@@ -38,22 +38,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		LoginRequestDto loginRequestDto = null;
 		try {
 			loginRequestDto = om.readValue(request.getInputStream(), LoginRequestDto.class);
-			System.out.println("jwt.JwtAuthenticationFilter.java의  loginRequestDto= "+loginRequestDto);
+			System.out.println("jwt.JwtAuthenticationFilter.java의  loginRequestDto= " + loginRequestDto);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-
-
 		// 유저네임패스워드 토큰 생성
-		UsernamePasswordAuthenticationToken authenticationToken =
-				new UsernamePasswordAuthenticationToken(
-						loginRequestDto.getUsername(),
-						loginRequestDto.getPassword());
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+				loginRequestDto.getUsername(), loginRequestDto.getPassword());
 
 		System.out.println("JwtAuthenticationFilter : 토큰생성완료");
-		System.out.println("JwtAuthenticationFilter : 토큰 = "+authenticationToken.getPrincipal());
-
+		System.out.println("JwtAuthenticationFilter : 토큰 = " + authenticationToken.getPrincipal());
 
 		// authenticate() 함수가 호출 되면 인증 프로바이더가 유저 디테일 서비스의
 		// loadUserByUsername(토큰의 첫번째 파라메터) 를 호출하고
@@ -64,12 +59,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		// Tip: 인증 프로바이더의 디폴트 서비스는 UserDetailsService 타입
 		// Tip: 인증 프로바이더의 디폴트 암호화 방식은 BCryptPasswordEncoder
 		// 결론은 인증 프로바이더에게 알려줄 필요가 없음.
-		Authentication authentication =
-				authenticationManager.authenticate(authenticationToken);
-		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 authentication ="+authentication);
+		Authentication authentication = authenticationManager.authenticate(authenticationToken);
+		System.out
+				.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 authentication =" + authentication);
 		PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
-		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 principalDetailis ="+principalDetailis);
-		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 principalDetailis = "+principalDetailis.getUser().getUsername());
+		System.out.println(
+				"jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 principalDetailis =" + principalDetailis);
+		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 principalDetailis = "
+				+ principalDetailis.getUser().getUsername());
 		return authentication;
 	}
 
@@ -79,17 +76,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 successfulAuthentication에 왓습니다");
 
 		PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
-		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 principalDetailis= "+principalDetailis.getUsername());
+		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 principalDetailis= "
+				+ principalDetailis.getUsername());
 
-		String jwtToken = JWT.create()
-				.withSubject(principalDetailis.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))
+		String jwtToken = JWT.create().withSubject(principalDetailis.getUsername())
+				.withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
 				.withClaim("id", principalDetailis.getUser().getId())
 				.withClaim("username", principalDetailis.getUser().getUsername())
 				.sign(Algorithm.HMAC512(JwtProperties.SECRET));
-		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 jwtToken= "+jwtToken);
+		System.out.println("jwt.JwtAuthenticationFilter.java의  attemptAuthentication의 jwtToken= " + jwtToken);
 
-		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+jwtToken);
-		//chain.doFilter(request, response);
+		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
+		// chain.doFilter(request, response);
 	}
 }
